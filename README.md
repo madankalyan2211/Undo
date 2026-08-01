@@ -16,7 +16,12 @@ View your app in AI Studio: https://ai.studio/apps/5d0f326e-1091-4f26-b94c-1b2c2
 
 The mobile app's analytics now post to a Supabase Edge Function instead of using the service role key on-device. See [undo-mobile/supabase/README.md](undo-mobile/supabase/README.md) for the exact secrets and deploy flow.
 
+## Privacy Policy
+
+Undo is designed with a privacy-first, ephemeral architecture. Read our full [Privacy Policy](PRIVACY.md) or view the web page at [`privacy.html`](privacy.html).
+
 ## Run Locally
+
 
 **Prerequisites:**  Node.js
 

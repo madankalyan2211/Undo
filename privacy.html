@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Privacy Policy - Undo</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0f172a;
+      --card-bg: #1e293b;
+      --text: #f8fafc;
+      --muted: #94a3b8;
+      --accent: #818cf8;
+      --border: #334155;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      padding: 40px 20px;
+    }
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      background: var(--card-bg);
+      padding: 40px;
+      border-radius: 16px;
+      border: 1px solid var(--border);
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+    }
+    h1 { font-size: 2.25rem; font-weight: 700; margin-bottom: 8px; color: var(--text); }
+    .subtitle { color: var(--muted); font-size: 0.95rem; margin-bottom: 28px; border-bottom: 1px solid var(--border); padding-bottom: 16px; }
+    h2 { font-size: 1.35rem; font-weight: 600; margin-top: 32px; margin-bottom: 12px; color: var(--accent); }
+    p { margin-bottom: 16px; color: #cbd5e1; }
+    ul { margin-left: 24px; margin-bottom: 16px; color: #cbd5e1; }
+    li { margin-bottom: 8px; }
+    table { width: 100%; border-collapse: collapse; margin: 20px 0; font-size: 0.9rem; }
+    th, td { padding: 12px; border: 1px solid var(--border); text-align: left; }
+    th { background: #0f172a; color: var(--accent); }
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    .badge {
+      display: inline-block;
+      background: rgba(129, 140, 248, 0.15);
+      color: var(--accent);
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      font-weight: 500;
+      margin-bottom: 20px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="badge">Privacy-First & Ephemeral Journaling</div>
+    <h1>Privacy Policy</h1>
+    <div class="subtitle">Effective Date: August 1, 2026 | Last Updated: August 1, 2026</div>
+
+    <p>Welcome to <strong>Undo</strong>. Your privacy, peace of mind, and control over your personal data are at the core of everything we build. Undo is designed from the ground up as an ephemeral, privacy-first journaling and thought-purging application.</p>
+
+    <h2>1. Core Privacy Philosophy: Ephemeral & Local-First</h2>
+    <p>Undo is built on the principle of ephemeral data management:</p>
+    <ul>
+      <li><strong>Local Storage First:</strong> All your personal thoughts, notes, and journal entries are stored locally on your device.</li>
+      <li><strong>Auto-Purging:</strong> By design, thoughts auto-purge based on your selected timer settings (1 hour, 24 hours, 7 days, or custom durations). Purged data is permanently removed.</li>
+      <li><strong>Zero Permanent Cloud Backups:</strong> Undo does not maintain a central server database storing your unencrypted thoughts or personal journals.</li>
+    </ul>
+
+    <h2>2. Information We Process</h2>
+    <p><strong>A. Local User Data:</strong> Journal entries and preferences stored locally on device.</p>
+    <p><strong>B. AI Insights (Google Gemini):</strong> Optional text prompts sent securely for real-time analysis, not retained or stored by Undo.</p>
+    <p><strong>C. Telemetry & Edge Analytics (Supabase):</strong> Anonymous crash logs and app version telemetry routed via Supabase Edge Functions on mobile apps.</p>
+
+    <h2>3. Third-Party Service Providers</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Provider</th>
+          <th>Purpose</th>
+          <th>Link</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Google Gemini API</td>
+          <td>AI Insights & Analysis</td>
+          <td><a href="https://policies.google.com/privacy" target="_blank" rel="noopener">Privacy Policy</a></td>
+        </tr>
+        <tr>
+          <td>Supabase</td>
+          <td>Edge Analytics & Infrastructure</td>
+          <td><a href="https://supabase.com/privacy" target="_blank" rel="noopener">Privacy Policy</a></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2>4. Contact & Repository</h2>
+    <p>If you have any questions, visit our GitHub repository: <a href="https://github.com/madankalyan2211/Undo" target="_blank" rel="noopener">https://github.com/madankalyan2211/Undo</a>.</p>
+  </div>
+</body>
+</html>

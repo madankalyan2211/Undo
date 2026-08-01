@@ -13,49 +13,8 @@ export const DEFAULT_SETTINGS: AppSettings = {
   cloudSyncSimulated: false,
 };
 
-// Initial realistic placeholder thoughts to populate timeline & saved views
-const INITIAL_THOUGHTS: Thought[] = [
-  {
-    id: 'th-1',
-    content: "Overthinking the presentation response from earlier today. Need to trust that I did my absolute best and let it fade.",
-    createdAt: Date.now() - 1000 * 60 * 60 * 4, // 4 hours ago
-    expiresAt: Date.now() + 1000 * 60 * 60 * 20, // 20 hours remaining
-    duration: '24h',
-    isSaved: false,
-    tags: ['work', 'clarity'],
-    moodEmoji: '💭',
-  },
-  {
-    id: 'th-2',
-    content: "Unsent message to Alex: 'I felt hurt when you cancelled our plans without checking, but I choose peace instead of holding onto resentment.'",
-    createdAt: Date.now() - 1000 * 60 * 60 * 18, // 18 hours ago
-    expiresAt: Date.now() + 1000 * 60 * 60 * 6, // 6 hours remaining
-    duration: '24h',
-    isSaved: false,
-    tags: ['unsent', 'relationships'],
-    moodEmoji: '🌿',
-  },
-  {
-    id: 'th-3',
-    content: "Worrying about next month's project deadline. Writing it down to clear my mental canvas before sleep.",
-    createdAt: Date.now() - 1000 * 60 * 25, // 25 mins ago
-    expiresAt: Date.now() + 1000 * 60 * 35, // 35 mins remaining
-    duration: '1h',
-    isSaved: false,
-    tags: ['anxiety'],
-    moodEmoji: '⚡',
-  },
-  {
-    id: 'th-saved-1',
-    content: "Perspective anchor: 'You don't need to control every outcome to be at peace with where you are.'",
-    createdAt: Date.now() - 1000 * 60 * 60 * 48,
-    expiresAt: Date.now() + 1000 * 60 * 60 * 24 * 30, // Permanent / saved
-    duration: '7d',
-    isSaved: true,
-    tags: ['mantra', 'peace'],
-    moodEmoji: '✨',
-  },
-];
+// Initial empty thoughts array for fresh user onboarding
+const INITIAL_THOUGHTS: Thought[] = [];
 
 export function getStoredThoughts(): Thought[] {
   if (typeof window === 'undefined') return INITIAL_THOUGHTS;

@@ -26,10 +26,11 @@ export function getStoredThoughts(): Thought[] {
     }
     const parsed: Thought[] = JSON.parse(raw);
     const now = Date.now();
-    // Auto purge thoughts that have expired and are NOT saved
-    const activeAndSaved = parsed.filter(t => t.isSaved || t.expiresAt > now);
+    // Filter out expired items and legacy dummy placeholder IDs
+    const dummyIds = ['th-1', 'th-2', 'th-3', 'th-saved-1'];
+    const activeAndSaved = parsed.filter(t => !dummyIds.includes(t.id) && (t.isSaved || t.expiresAt > now));
     
-    // Save cleaned list back if any expired
+    // Save cleaned list back if any expired or purged
     if (activeAndSaved.length !== parsed.length) {
       localStorage.setItem(THOUGHTS_KEY, JSON.stringify(activeAndSaved));
     }

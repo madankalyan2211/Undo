@@ -75,6 +75,27 @@ export const EmotionalInsightCard: React.FC<EmotionalInsightCardProps> = ({
         </button>
       </div>
 
+      {/* Undo Plus Emotional Weather Report */}
+      <div className="p-4 rounded-2xl bg-gradient-to-r from-amber-500/10 via-white/[0.04] to-purple-500/10 border border-amber-400/20 flex items-center justify-between gap-3">
+        <div className="flex items-center gap-3">
+          <span className="text-3xl select-none">{insight.emotionalWeather.icon}</span>
+          <div>
+            <div className="flex items-center gap-2">
+              <span className="text-xs font-bold text-white tracking-wide">
+                {insight.emotionalWeather.title}
+              </span>
+              <span className="px-2 py-0.5 rounded-full bg-white/10 text-[9px] font-mono text-amber-300 uppercase">
+                {insight.emotionalWeather.velocity}
+              </span>
+            </div>
+            <p className="text-[11px] text-white/60 mt-0.5 leading-snug">
+              {insight.emotionalWeather.subtitle}
+            </p>
+          </div>
+        </div>
+      </div>
+
+
       {/* Main Spotlight Theme Card */}
       <div className="rounded-2xl bg-white/[0.04] border border-white/10 p-4 sm:p-5 flex flex-col gap-3 relative overflow-hidden">
         {/* Subtle Ambient Glow */}

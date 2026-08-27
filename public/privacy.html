@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Privacy Policy - Undo</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #050505;
+      --card-bg: #111111;
+      --text: #f8fafc;
+      --muted: #94a3b8;
+      --accent: #fbbf24;
+      --border: #222222;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      padding: 40px 20px;
+    }
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      background: var(--card-bg);
+      padding: 40px;
+      border-radius: 16px;
+      border: 1px solid var(--border);
+    }
+    h1 { font-size: 2rem; font-weight: 700; margin-bottom: 8px; color: var(--text); }
+    .subtitle { color: var(--muted); font-size: 0.9rem; margin-bottom: 24px; border-bottom: 1px solid var(--border); padding-bottom: 16px; }
+    h2 { font-size: 1.25rem; font-weight: 600; margin-top: 28px; margin-bottom: 12px; color: var(--accent); }
+    p { margin-bottom: 14px; color: #cbd5e1; font-size: 0.95rem; }
+    ul { margin-left: 24px; margin-bottom: 14px; color: #cbd5e1; font-size: 0.95rem; }
+    li { margin-bottom: 6px; }
+    table { width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 0.88rem; }
+    th, td { padding: 10px 12px; border: 1px solid var(--border); text-align: left; }
+    th { background: #1a1a1a; color: var(--accent); }
+    a { color: var(--accent); text-decoration: none; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Privacy Policy</h1>
+    <div class="subtitle">Last Updated: August 2026 · App: Undo (Web & Mobile)</div>
+
+    <h2>1. Privacy-First Philosophy (Zero Data Retention)</h2>
+    <p>Undo is designed from the ground up as a private sanctuary. Our fundamental principle is that your thoughts belong only to you. By default, your journal entries and ephemeral thoughts are stored locally on your device and are permanently destroyed when their countdown expires.</p>
+
+    <h2>2. Data We Collect and How It Is Handled</h2>
+    <table>
+      <tr>
+        <th>Data Category</th>
+        <th>Storage Location</th>
+        <th>Retention Policy</th>
+      </tr>
+      <tr>
+        <td><strong>Temporary Thoughts & Entries</strong></td>
+        <td>Local Device Only (Encrypted AsyncStorage)</td>
+        <td>Auto-purged permanently after timer (10m, 1h, 3h, 24h, 7d, 30d)</td>
+      </tr>
+      <tr>
+        <td><strong>Daily Focus Intentions (To-Do)</strong></td>
+        <td>Local Device Only</td>
+        <td>Auto-resets at midnight (or saved in user vault if toggled)</td>
+      </tr>
+      <tr>
+        <td><strong>Account & Authentication</strong></td>
+        <td>Supabase Auth (Google OAuth)</td>
+        <td>Email and name used strictly for sign-in & subscription sync</td>
+      </tr>
+      <tr>
+        <td><strong>Subscription Payments</strong></td>
+        <td>Razorpay Payment Gateway</td>
+        <td>Processed via PCI-DSS compliant Razorpay APIs. No card/UPI pins stored by Undo.</td>
+      </tr>
+    </table>
+
+    <h2>3. Security & Anti-Surveillance Features</h2>
+    <ul>
+      <li><strong>Biometric Security Lock:</strong> FaceID / Fingerprint / Device PIN authentication before opening the app.</li>
+      <li><strong>Stealth Calculator Disguise:</strong> Conceals Undo behind a fully functional standard calculator until a secret PIN is typed.</li>
+      <li><strong>Duress Panic Wipe:</strong> Instant emergency data flush upon entering a duress code or panic trigger.</li>
+    </ul>
+
+    <h2>4. Third-Party Services</h2>
+    <ul>
+      <li><strong>Supabase:</strong> For secure OAuth authentication.</li>
+      <li><strong>Razorpay:</strong> For secure in-app payments (UPI, Cards, NetBanking).</li>
+    </ul>
+
+    <h2>5. Contact Us</h2>
+    <p>If you have any questions regarding our privacy practices, please contact us at <a href="mailto:support@undo.app">support@undo.app</a>.</p>
+  </div>
+</body>
+</html>

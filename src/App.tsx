@@ -5,7 +5,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { TabType, Thought, AppSettings, PurgeDuration } from './types';
+import { TabType, Thought, AppSettings, PurgeDuration, ReleaseRitual, UserProfile } from './types';
 import {
   getStoredThoughts,
   saveThoughts,
@@ -13,6 +13,8 @@ import {
   saveSettings,
   calculateExpiryTime,
 } from './utils/storage';
+import { getStoredUser, subscribeToAuthChanges } from './utils/auth';
+import { soundEffects } from './utils/audio';
 
 import { AmbientBackground } from './components/AmbientBackground';
 import { Header } from './components/Header';
@@ -24,15 +26,33 @@ import { BottomNav } from './components/BottomNav';
 import { ParticleCanvas } from './components/ParticleCanvas';
 import { Toast } from './components/Toast';
 import { SecurityLock } from './components/SecurityLock';
+import { PlusModal } from './components/PlusModal';
+import { DecoyCalculator } from './components/DecoyCalculator';
+import { AuthModal } from './components/AuthModal';
+import { SignInPage } from './components/SignInPage';
+import { AuthCallback } from './components/AuthCallback';
 
 export default function App() {
+  // Handle /auth/callback route or oauth redirect with tokens in hash
+  if (
+    window.location.pathname.includes('/auth/callback') ||
+    window.location.hash.includes('access_token=')
+  ) {
+    return <AuthCallback />;
+  }
+
   const [activeTab, setActiveTab] = useState<TabType>('write');
   const [thoughts, setThoughts] = useState<Thought[]>([]);
   const [settings, setSettings] = useState<AppSettings>(getStoredSettings());
+  const [user, setUser] = useState<UserProfile | null>(getStoredUser());
   const [isLocked, setIsLocked] = useState<boolean>(false);
+  const [isStealthUnlocked, setIsStealthUnlocked] = useState<boolean>(false);
+  const [isPlusModalOpen, setIsPlusModalOpen] = useState<boolean>(false);
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState<boolean>(false);
 
   // Particle state
   const [particleTrigger, setParticleTrigger] = useState(false);
+  const [activeRitual, setActiveRitual] = useState<ReleaseRitual>(settings.releaseRitual || 'dust');
 
   // Toast state
   const [toast, setToast] = useState<{
@@ -48,8 +68,15 @@ export default function App() {
 
     const loadedSettings = getStoredSettings();
     setSettings(loadedSettings);
+    setActiveRitual(loadedSettings.releaseRitual || 'dust');
+
     if (loadedSettings.securityLockEnabled) {
       setIsLocked(true);
+    }
+
+    // Initialize ambient audio if enabled
+    if (loadedSettings.ambientSoundscape && loadedSettings.ambientSoundscape !== 'off') {
+      soundEffects.setAmbientSoundscape(loadedSettings.ambientSoundscape, loadedSettings.ambientVolume);
     }
 
     // Interval to clean up expired thoughts in state
@@ -64,7 +91,21 @@ export default function App() {
       });
     }, 15000);
 
-    return () => clearInterval(interval);
+    const unsubscribe = subscribeToAuthChanges((updatedUser) => {
+      setUser(updatedUser);
+      if (updatedUser?.isPlusMember) {
+        setSettings((prev) => {
+          const next = { ...prev, isPlusMember: true, plusTier: updatedUser.plusTier || 'lifetime' };
+          saveSettings(next);
+          return next;
+        });
+      }
+    });
+
+    return () => {
+      clearInterval(interval);
+      unsubscribe();
+    };
   }, []);
 
   const showToast = (message: string, subMessage?: string, type: 'success' | 'warning' | 'info' = 'success') => {
@@ -78,14 +119,31 @@ export default function App() {
     const updated = { ...settings, ...newSettings };
     setSettings(updated);
     saveSettings(updated);
+
+    if (newSettings.releaseRitual) {
+      setActiveRitual(newSettings.releaseRitual);
+    }
+  };
+
+  const handleTestRitual = (ritual: ReleaseRitual) => {
+    setActiveRitual(ritual);
+    setParticleTrigger(true);
   };
 
   const handleReleaseThought = (
     content: string,
     duration: PurgeDuration,
     customHours?: number,
-    moodEmoji?: string
+    moodEmoji?: string,
+    ritual?: ReleaseRitual
   ) => {
+    const fadingCount = thoughts.filter((t) => !t.isSaved).length;
+    if (!settings.isPlusMember && fadingCount >= 5) {
+      showToast('Fading Limit Reached (5/5)', 'Free tier allows up to 5 active fading thoughts. Upgrade to Plus for unlimited thoughts.');
+      setIsPlusModalOpen(true);
+      return;
+    }
+
     const expiresAt = calculateExpiryTime(duration, customHours);
 
     // Auto extract basic hashtags if any exist in text
@@ -109,13 +167,19 @@ export default function App() {
     saveThoughts(updated);
 
     // Trigger particle dissolve animation
+    if (ritual) {
+      setActiveRitual(ritual);
+    }
     setParticleTrigger(true);
 
     // Duration label for toast
     const durationLabelMap: Record<PurgeDuration, string> = {
+      '10m': '10 Minutes',
       '1h': '1 Hour',
+      '3h': '3 Hours',
       '24h': '24 Hours',
       '7d': '7 Days',
+      '30d': '30 Days',
       'custom': `${customHours || 12} Hours`,
     };
 
@@ -137,6 +201,13 @@ export default function App() {
   };
 
   const handleSaveForever = (id: string) => {
+    const keptCount = thoughts.filter((t) => t.isSaved).length;
+    if (!settings.isPlusMember && keptCount >= 10) {
+      showToast('Kept Limit Reached (10/10)', 'Free tier allows keeping up to 10 thoughts. Upgrade to Plus for unlimited kept thoughts.');
+      setIsPlusModalOpen(true);
+      return;
+    }
+
     const updated = thoughts.map((t) => {
       if (t.id === id) {
         return { ...t, isSaved: true };
@@ -149,6 +220,13 @@ export default function App() {
   };
 
   const handleUnsaveToTimeline = (id: string) => {
+    const fadingCount = thoughts.filter((t) => !t.isSaved).length;
+    if (!settings.isPlusMember && fadingCount >= 5) {
+      showToast('Fading Limit Reached (5/5)', 'Free tier allows up to 5 active fading thoughts. Upgrade to Plus for unlimited thoughts.');
+      setIsPlusModalOpen(true);
+      return;
+    }
+
     const updated = thoughts.map((t) => {
       if (t.id === id) {
         return {
@@ -161,7 +239,7 @@ export default function App() {
     });
     setThoughts(updated);
     saveThoughts(updated);
-    showToast('Restored to Timeline', 'Will auto-expire in 24 Hours.');
+    showToast('Returned to Timeline', 'Thought will purge in 24 hours.');
   };
 
   const handleExportData = () => {
@@ -199,14 +277,34 @@ export default function App() {
     }
   };
 
-  return (
-    <div className="relative min-h-screen w-full bg-[#050505] text-white flex justify-center font-sans overflow-x-clip antialiased">
-      {/* Soft Ambient Floating Background */}
-      <AmbientBackground />
+  // If stealth mode is active and not unlocked, show Decoy Calculator
+  if (settings.stealthDisguise && !isStealthUnlocked) {
+    return (
+      <div className={`relative min-h-screen w-full bg-[#050505] text-white flex flex-col items-center justify-center p-4 font-style-${settings.fontStyle}`}>
+        <AmbientBackground theme={settings.themePalette} />
+        <DecoyCalculator
+          correctPin={settings.stealthPin || '1234'}
+          onUnlock={() => setIsStealthUnlocked(true)}
+          onExitStealth={() => handleUpdateSettings({ stealthDisguise: false })}
+        />
+      </div>
+    );
+  }
 
-      {/* Particle Dissolve Explosion Effect */}
+  // Show sign-in gate if not authenticated
+  if (!user) {
+    return <SignInPage onShowToast={showToast} onLoginSuccess={(u) => setUser(u)} />;
+  }
+
+  return (
+    <div className={`theme-${settings.themePalette} font-style-${settings.fontStyle} relative min-h-screen w-full bg-[var(--color-bg)] text-[var(--color-text)] flex justify-center overflow-x-clip antialiased`}>
+      {/* Soft Ambient Floating Background */}
+      <AmbientBackground theme={settings.themePalette} />
+
+      {/* Particle Dissolve Explosion Effect (5 Rituals) */}
       <ParticleCanvas
         trigger={particleTrigger}
+        ritual={activeRitual}
         onComplete={() => setParticleTrigger(false)}
       />
 
@@ -224,6 +322,25 @@ export default function App() {
         onUnlock={() => setIsLocked(false)}
       />
 
+      {/* Undo Plus Perks Hub Modal */}
+      <PlusModal
+        isOpen={isPlusModalOpen}
+        onClose={() => setIsPlusModalOpen(false)}
+        settings={settings}
+        onUpdateSettings={handleUpdateSettings}
+        onTestRitual={handleTestRitual}
+        onShowToast={showToast}
+      />
+
+      {/* Google Auth Modal */}
+      <AuthModal
+        isOpen={isAuthModalOpen}
+        user={user}
+        onClose={() => setIsAuthModalOpen(false)}
+        onUserChange={setUser}
+        onShowToast={showToast}
+      />
+
       {/* Mobile Application Frame Container */}
       <main className="relative z-10 w-full max-w-md min-h-screen px-4 pt-2 flex flex-col justify-start">
         {/* Top Header for Active View */}
@@ -231,6 +348,9 @@ export default function App() {
           key={activeTab}
           title={getHeaderInfo().title}
           subtitle={getHeaderInfo().subtitle}
+          user={user}
+          onOpenPlusModal={() => setIsPlusModalOpen(true)}
+          onOpenAuthModal={() => setIsAuthModalOpen(true)}
         />
 
         {/* Dynamic View Views */}
@@ -249,6 +369,8 @@ export default function App() {
                   onRelease={handleReleaseThought}
                   onEmptyRelease={handleEmptyRelease}
                   defaultTimer={settings.defaultTimer}
+                  settings={settings}
+                  onOpenPlusModal={() => setIsPlusModalOpen(true)}
                 />
               </motion.div>
             )}
@@ -302,10 +424,13 @@ export default function App() {
                 <SettingsView
                   settings={settings}
                   thoughts={thoughts}
+                  user={user}
                   onUpdateSettings={handleUpdateSettings}
                   onExportData={handleExportData}
                   onClearAll={handleClearAll}
-                  onShowToast={(msg) => showToast(msg)}
+                  onShowToast={(msg, sub) => showToast(msg, sub)}
+                  onTestRitual={handleTestRitual}
+                  onOpenAuthModal={() => setIsAuthModalOpen(true)}
                 />
               </motion.div>
             )}
@@ -323,3 +448,4 @@ export default function App() {
     </div>
   );
 }
+

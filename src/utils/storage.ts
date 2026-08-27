@@ -1,7 +1,8 @@
-import { Thought, AppSettings, PurgeDuration } from '../types';
+import { Thought, AppSettings, PurgeDuration, EmotionItem } from '../types';
 
 const THOUGHTS_KEY = 'undo_thoughts_v1';
 const SETTINGS_KEY = 'undo_settings_v1';
+const CUSTOM_EMOJIS_KEY = 'undo_custom_emojis_v1';
 
 export const DEFAULT_SETTINGS: AppSettings = {
   defaultTimer: '24h',
@@ -11,7 +12,22 @@ export const DEFAULT_SETTINGS: AppSettings = {
   securityLockEnabled: false,
   autoPurgeNotice: true,
   cloudSyncSimulated: false,
+
+  // Undo Plus Premium Settings
+  isPlusMember: false,
+  releaseRitual: 'dust',
+  ambientSoundscape: 'off',
+  ambientVolume: 0.5,
+  typingSoundPack: 'classic',
+  themePalette: 'oled',
+  fontStyle: 'sans',
+  stealthDisguise: false,
+  stealthPin: '1234',
+  duressPanicEnabled: true,
+  mindfulReframerEnabled: true,
+  retrievalGracePeriodEnabled: true,
 };
+
 
 // Initial empty thoughts array for fresh user onboarding
 const INITIAL_THOUGHTS: Thought[] = [];
@@ -70,21 +86,50 @@ export function saveSettings(settings: AppSettings): void {
   }
 }
 
+export function getStoredCustomEmojis(): EmotionItem[] {
+  if (typeof window === 'undefined') return [];
+  try {
+    const raw = localStorage.getItem(CUSTOM_EMOJIS_KEY);
+    if (!raw) return [];
+    return JSON.parse(raw);
+  } catch (e) {
+    console.error('Failed to load custom emojis:', e);
+    return [];
+  }
+}
+
+export function saveCustomEmojis(emojis: EmotionItem[]): void {
+  if (typeof window === 'undefined') return;
+  try {
+    localStorage.setItem(CUSTOM_EMOJIS_KEY, JSON.stringify(emojis));
+  } catch (e) {
+    console.error('Failed to save custom emojis:', e);
+  }
+}
+
+
 export function calculateExpiryTime(duration: PurgeDuration, customHours = 12): number {
   const now = Date.now();
   switch (duration) {
+    case '10m':
+      return now + 1000 * 60 * 10;
     case '1h':
       return now + 1000 * 60 * 60;
+    case '3h':
+      return now + 1000 * 60 * 60 * 3;
     case '24h':
       return now + 1000 * 60 * 60 * 24;
     case '7d':
       return now + 1000 * 60 * 60 * 24 * 7;
+    case '30d':
+      return now + 1000 * 60 * 60 * 24 * 30;
     case 'custom':
       return now + 1000 * 60 * 60 * (customHours || 12);
     default:
       return now + 1000 * 60 * 60 * 24;
   }
 }
+
 
 export function formatTimeRemaining(expiresAt: number): { text: string; percent: number; isUrgent: boolean } {
   const now = Date.now();

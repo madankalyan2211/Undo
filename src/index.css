@@ -11,3 +11,58 @@
     scrollbar-width: none;  /* Firefox */
   }
 }
+
+/* Luxury Themes */
+.theme-oled {
+  --bg-color: #050505;
+  --accent-color: #FFFFFF;
+  --glow-color: rgba(255, 255, 255, 0.15);
+}
+
+.theme-obsidian {
+  --bg-color: #090806;
+  --accent-color: #E2B86E;
+  --glow-color: rgba(226, 184, 110, 0.2);
+}
+
+.theme-matcha {
+  --bg-color: #060907;
+  --accent-color: #9ECBA0;
+  --glow-color: rgba(158, 203, 160, 0.2);
+}
+
+.theme-lavender {
+  --bg-color: #08060E;
+  --accent-color: #C4B5FD;
+  --glow-color: rgba(196, 181, 253, 0.2);
+}
+
+.theme-indigo {
+  --bg-color: #050711;
+  --accent-color: #818CF8;
+  --glow-color: rgba(129, 140, 248, 0.22);
+}
+
+.theme-cyberpunk {
+  --bg-color: #040308;
+  --accent-color: #2DD4BF;
+  --glow-color: rgba(45, 212, 191, 0.3);
+}
+
+/* Typography styles */
+.font-style-sans {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+.font-style-serif {
+  font-family: "Playfair Display", Georgia, "Times New Roman", serif;
+}
+
+.font-style-mono {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+
+.font-style-typewriter {
+  font-family: "Courier Prime", "Courier New", Courier, monospace;
+}
+

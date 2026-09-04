@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { motion } from 'motion/react';
-import { X, Shield, LogOut, RefreshCw, UserCheck } from 'lucide-react';
+import { X, Shield, User, Check, RotateCcw } from 'lucide-react';
 import { UserProfile } from '../types';
-import { signInWithGoogle, signOutUser } from '../utils/auth';
+import { saveStoredUser, DEFAULT_USER } from '../utils/auth';
 import { soundEffects } from '../utils/audio';
 
 interface AuthModalProps {
@@ -20,28 +20,34 @@ export const AuthModal: React.FC<AuthModalProps> = ({
   onUserChange,
   onShowToast,
 }) => {
-  const [isLoading, setIsLoading] = useState(false);
+  const [name, setName] = useState(user?.name || DEFAULT_USER.name);
+  const [email, setEmail] = useState(user?.email || DEFAULT_USER.email);
+  const [isEditing, setIsEditing] = useState(false);
 
   if (!isOpen) return null;
 
-  const handleGoogleSignIn = async () => {
-    try {
-      setIsLoading(true);
-      soundEffects.playClickSound();
-      await signInWithGoogle();
-      setIsLoading(false);
-    } catch (err: any) {
-      setIsLoading(false);
-      onShowToast('Google Sign-in failed', err.message);
-    }
+  const handleSaveProfile = (e: React.FormEvent) => {
+    e.preventDefault();
+    soundEffects.playSaveSound();
+    const updated: UserProfile = {
+      ...(user || DEFAULT_USER),
+      name: name.trim() || 'Mindful Writer',
+      email: email.trim() || 'writer@undo.app',
+    };
+    saveStoredUser(updated);
+    onUserChange(updated);
+    setIsEditing(false);
+    onShowToast('Profile Updated', `Active as ${updated.name}`);
   };
 
-  const handleSignOut = async () => {
+  const handleResetDefault = () => {
     soundEffects.playDeleteSound();
-    await signOutUser();
-    onUserChange(null);
-    onShowToast('Signed Out', 'Your local thoughts remain safe on this device');
-    onClose();
+    saveStoredUser(DEFAULT_USER);
+    onUserChange(DEFAULT_USER);
+    setName(DEFAULT_USER.name);
+    setEmail(DEFAULT_USER.email);
+    setIsEditing(false);
+    onShowToast('Profile Reset', 'Reverted to default guest writer profile.');
   };
 
   return (
@@ -70,87 +76,94 @@ export const AuthModal: React.FC<AuthModalProps> = ({
           <X className="w-4 h-4" />
         </button>
 
-        {user ? (
-          /* Signed In Profile Card */
-          <div className="flex flex-col items-center text-center pt-2">
-            <div className="relative mb-3">
-              {user.avatar ? (
-                <img
-                  src={user.avatar}
-                  alt={user.name}
-                  className="w-16 h-16 rounded-full border-2 border-amber-400 object-cover"
+        <div className="flex flex-col items-center text-center pt-2">
+          {/* Avatar */}
+          <div className="relative mb-3">
+            <div className="w-16 h-16 rounded-full bg-amber-400/20 border-2 border-amber-400/40 flex items-center justify-center text-amber-300 font-bold text-2xl shadow-md">
+              {(user?.name || name).charAt(0).toUpperCase()}
+            </div>
+            <div className="absolute -bottom-1 -right-1 w-5 h-5 rounded-full bg-emerald-500 flex items-center justify-center text-[10px] text-white border border-black shadow">
+              ✓
+            </div>
+          </div>
+
+          <h3 className="text-lg font-bold text-white tracking-tight">{user?.name || name}</h3>
+          <p className="text-xs text-white/50">{user?.email || email}</p>
+
+          <div className="mt-3 px-3 py-1 rounded-full bg-emerald-400/10 border border-emerald-400/30 text-emerald-400 text-[11px] font-bold flex items-center gap-1.5">
+            <User className="w-3.5 h-3.5" />
+            <span>Active Writer Session</span>
+          </div>
+
+          <div className="w-full h-px bg-white/10 my-5" />
+
+          {isEditing ? (
+            <form onSubmit={handleSaveProfile} className="w-full space-y-3 text-left">
+              <div>
+                <label className="text-[11px] text-white/50 font-medium block mb-1">Writer Name</label>
+                <input
+                  type="text"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  className="w-full bg-white/5 border border-white/15 rounded-xl px-3.5 py-2.5 text-xs text-white placeholder-white/30 focus:outline-none focus:border-amber-400/50"
+                  required
                 />
-              ) : (
-                <div className="w-16 h-16 rounded-full bg-amber-400/20 border-2 border-amber-400 flex items-center justify-center text-amber-300 font-bold text-xl">
-                  {user.name.charAt(0).toUpperCase()}
-                </div>
-              )}
-              <div className="absolute -bottom-1 -right-1 w-5 h-5 rounded-full bg-white flex items-center justify-center text-[10px] font-black text-[#4285F4] border border-black shadow">
-                G
               </div>
-            </div>
 
-            <h3 className="text-lg font-bold text-white">{user.name}</h3>
-            <p className="text-xs text-white/50">{user.email}</p>
+              <div>
+                <label className="text-[11px] text-white/50 font-medium block mb-1">Writer Email</label>
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="w-full bg-white/5 border border-white/15 rounded-xl px-3.5 py-2.5 text-xs text-white placeholder-white/30 focus:outline-none focus:border-amber-400/50"
+                  required
+                />
+              </div>
 
-            <div className="mt-3 px-3 py-1 rounded-full bg-emerald-400/10 border border-emerald-400/30 text-emerald-400 text-[11px] font-bold flex items-center gap-1.5">
-              <UserCheck className="w-3.5 h-3.5" />
-              <span>Google Account Connected</span>
-            </div>
-
-            <div className="w-full h-px bg-white/10 my-5" />
-
+              <div className="pt-2 flex items-center gap-2">
+                <button
+                  type="submit"
+                  className="flex-1 py-2.5 rounded-xl bg-amber-400 text-black font-bold text-xs flex items-center justify-center gap-1.5 cursor-pointer hover:bg-amber-300 transition-colors"
+                >
+                  <Check className="w-3.5 h-3.5" />
+                  <span>Save</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setIsEditing(false)}
+                  className="px-4 py-2.5 rounded-xl bg-white/10 text-white text-xs font-semibold hover:bg-white/15 transition-colors cursor-pointer"
+                >
+                  Cancel
+                </button>
+              </div>
+            </form>
+          ) : (
             <div className="w-full space-y-2.5">
               <button
                 type="button"
-                onClick={handleGoogleSignIn}
-                className="w-full py-2.5 rounded-xl bg-white/[0.06] hover:bg-white/10 border border-white/10 text-white text-xs font-semibold flex items-center justify-center gap-2 cursor-pointer transition-colors"
+                onClick={() => setIsEditing(true)}
+                className="w-full py-2.5 rounded-xl bg-white/[0.08] hover:bg-white/15 border border-white/10 text-white text-xs font-semibold flex items-center justify-center gap-2 cursor-pointer transition-colors"
               >
-                <RefreshCw className="w-3.5 h-3.5 text-white/60" />
-                <span>{isLoading ? 'Connecting to Google...' : 'Switch Google Account'}</span>
+                <span>Edit Writer Name / Email</span>
               </button>
 
               <button
                 type="button"
-                onClick={handleSignOut}
-                className="w-full py-2.5 rounded-xl bg-red-500/10 hover:bg-red-500/20 border border-red-500/30 text-red-400 text-xs font-bold flex items-center justify-center gap-2 cursor-pointer transition-colors"
+                onClick={handleResetDefault}
+                className="w-full py-2.5 rounded-xl bg-white/[0.03] hover:bg-white/[0.07] border border-white/5 text-white/60 hover:text-white text-xs font-medium flex items-center justify-center gap-2 cursor-pointer transition-colors"
               >
-                <LogOut className="w-3.5 h-3.5" />
-                <span>Sign Out</span>
+                <RotateCcw className="w-3.5 h-3.5" />
+                <span>Reset to Default</span>
               </button>
             </div>
+          )}
+
+          <div className="mt-5 pt-4 border-t border-white/10 w-full flex items-center justify-center gap-1.5 text-[10px] text-white/40">
+            <Shield className="w-3 h-3 text-amber-400" />
+            <span>Private & Ephemeral · Zero Tracking · Offline First</span>
           </div>
-        ) : (
-          /* Sign In Screen */
-          <div className="flex flex-col items-center text-center pt-2">
-            <div className="w-14 h-14 rounded-2xl bg-white flex items-center justify-center text-[#4285F4] font-black text-2xl mb-4 shadow-[0_0_20px_rgba(255,255,255,0.2)]">
-              G
-            </div>
-
-            <h3 className="text-xl font-bold text-white tracking-tight">Sign in with Google</h3>
-            <p className="text-xs text-white/50 mt-1.5 leading-relaxed px-2 mb-6">
-              Sync Undo Plus membership, cloud backup, and reflection history seamlessly.
-            </p>
-
-            {/* Real Google Button */}
-            <button
-              type="button"
-              disabled={isLoading}
-              onClick={handleGoogleSignIn}
-              className="w-full py-3.5 px-4 rounded-2xl bg-white hover:bg-slate-100 text-slate-900 font-bold text-sm flex items-center justify-center gap-3 transition-all shadow-[0_10px_25px_rgba(255,255,255,0.15)] cursor-pointer active:scale-[0.98]"
-            >
-              <div className="w-5 h-5 rounded-full bg-slate-100 flex items-center justify-center text-[#4285F4] font-black text-xs">
-                G
-              </div>
-              <span>{isLoading ? 'Connecting to Google...' : 'Continue with Google'}</span>
-            </button>
-
-            <div className="mt-6 pt-4 border-t border-white/10 w-full flex items-center justify-center gap-1.5 text-[10px] text-white/40">
-              <Shield className="w-3 h-3 text-amber-400" />
-              <span>Private & Ephemeral · Zero Tracking · Offline First</span>
-            </div>
-          </div>
-        )}
+        </div>
       </motion.div>
     </div>
   );

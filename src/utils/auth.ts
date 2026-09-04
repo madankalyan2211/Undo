@@ -3,31 +3,33 @@ import { supabase, mapSupabaseUserToProfile } from './supabase';
 
 const AUTH_USER_KEY = 'undo_auth_user_v1';
 
-export function getStoredUser(): UserProfile | null {
+export const DEFAULT_USER: UserProfile = {
+  id: 'writer_default_user',
+  email: 'writer@undo.app',
+  name: 'Mindful Writer',
+  authProvider: 'demo',
+  isPlusMember: false,
+  createdAt: 1700000000000,
+};
+
+export function getStoredUser(): UserProfile {
   try {
     const raw = localStorage.getItem(AUTH_USER_KEY);
-    if (!raw) return null;
-    const parsed: UserProfile = JSON.parse(raw);
-    if (
-      parsed.email === 'writer@gmail.com' ||
-      parsed.name === 'Mindful Writer' ||
-      parsed.id?.startsWith('google_') ||
-      parsed.id?.startsWith('supabase_google_')
-    ) {
-      localStorage.removeItem(AUTH_USER_KEY);
-      return null;
+    if (raw) {
+      const parsed: UserProfile = JSON.parse(raw);
+      if (parsed && parsed.email) {
+        return parsed;
+      }
     }
-    return parsed;
-  } catch {
-    return null;
-  }
+  } catch {}
+  return DEFAULT_USER;
 }
 
 export function saveStoredUser(user: UserProfile | null): void {
   if (user) {
     localStorage.setItem(AUTH_USER_KEY, JSON.stringify(user));
   } else {
-    localStorage.removeItem(AUTH_USER_KEY);
+    localStorage.setItem(AUTH_USER_KEY, JSON.stringify(DEFAULT_USER));
   }
 }
 

@@ -153,7 +153,7 @@ ${t.tags ? `Tags: ${t.tags.join(', ')}` : ''}
             </div>
           </div>
 
-          {/* SECTION 0.5: GOOGLE ACCOUNT CARD */}
+          {/* SECTION 0.5: WRITER PROFILE CARD */}
           {onOpenAuthModal && (
             <div
               onClick={() => {
@@ -163,28 +163,26 @@ ${t.tags ? `Tags: ${t.tags.join(', ')}` : ''}
               className="rounded-[28px] bg-white/[0.04] hover:bg-white/[0.07] border border-white/10 p-4 sm:p-5 flex items-center justify-between gap-3 cursor-pointer transition-all shadow-sm"
             >
               <div className="flex items-center gap-3.5 min-w-0">
-                <div className="w-10 h-10 rounded-2xl bg-white flex items-center justify-center text-[#4285F4] font-black text-lg shrink-0 shadow-sm">
-                  G
+                <div className="w-10 h-10 rounded-2xl bg-amber-400/20 border border-amber-400/30 flex items-center justify-center text-amber-300 font-bold text-sm shrink-0 shadow-sm">
+                  {user?.name ? user.name.charAt(0).toUpperCase() : '✦'}
                 </div>
                 <div className="flex flex-col min-w-0">
                   <div className="flex items-center gap-2">
                     <span className="text-sm font-bold text-white truncate">
-                      {user ? user.name : 'Google Account'}
+                      {user ? user.name : 'Mindful Writer'}
                     </span>
-                    {user && (
-                      <span className="px-2 py-0.5 rounded-full bg-emerald-400/15 border border-emerald-400/30 text-[9px] font-bold text-emerald-400 uppercase shrink-0">
-                        SYNCED
-                      </span>
-                    )}
+                    <span className="px-2 py-0.5 rounded-full bg-emerald-400/15 border border-emerald-400/30 text-[9px] font-bold text-emerald-400 uppercase shrink-0">
+                      ACTIVE
+                    </span>
                   </div>
                   <span className="text-[11px] text-white/50 truncate mt-0.5">
-                    {user ? user.email : 'Sign in with Google to sync membership & backup'}
+                    {user ? user.email : 'writer@undo.app'}
                   </span>
                 </div>
               </div>
 
               <div className="px-3 py-1.5 rounded-xl bg-white/10 text-white font-bold text-[11px] uppercase tracking-wider shrink-0 hover:bg-white/20 transition-colors">
-                {user ? 'Manage' : 'Sign In'}
+                Profile
               </div>
             </div>
           )}

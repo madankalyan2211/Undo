@@ -29,7 +29,6 @@ import { SecurityLock } from './components/SecurityLock';
 import { PlusModal } from './components/PlusModal';
 import { DecoyCalculator } from './components/DecoyCalculator';
 import { AuthModal } from './components/AuthModal';
-import { SignInPage } from './components/SignInPage';
 import { AuthCallback } from './components/AuthCallback';
 
 export default function App() {
@@ -291,10 +290,6 @@ export default function App() {
     );
   }
 
-  // Show sign-in gate if not authenticated
-  if (!user) {
-    return <SignInPage onShowToast={showToast} onLoginSuccess={(u) => setUser(u)} />;
-  }
 
   return (
     <div className={`theme-${settings.themePalette} font-style-${settings.fontStyle} relative min-h-screen w-full bg-[var(--color-bg)] text-[var(--color-text)] flex justify-center overflow-x-clip antialiased`}>

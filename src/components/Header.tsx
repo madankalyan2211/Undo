@@ -96,21 +96,15 @@ export const Header: React.FC<HeaderProps> = ({
               onClick={onOpenAuthModal}
               className="relative p-0.5 rounded-full hover:scale-105 transition-transform cursor-pointer"
             >
-              {user ? (
-                user.avatar ? (
-                  <img
-                    src={user.avatar}
-                    alt={user.name}
-                    className="w-7 h-7 rounded-full border-1.5 border-amber-400 object-cover"
-                  />
-                ) : (
-                  <div className="w-7 h-7 rounded-full bg-amber-400/20 border-1.5 border-amber-400 flex items-center justify-center text-[11px] font-bold text-amber-300">
-                    {user.name.charAt(0).toUpperCase()}
-                  </div>
-                )
+              {user?.avatar ? (
+                <img
+                  src={user.avatar}
+                  alt={user.name}
+                  className="w-7 h-7 rounded-full border-1.5 border-amber-400 object-cover"
+                />
               ) : (
-                <div className="w-7 h-7 rounded-full bg-white flex items-center justify-center text-xs font-black text-[#4285F4] shadow-sm">
-                  G
+                <div className="w-7 h-7 rounded-full bg-amber-400/20 border-1.5 border-amber-400 flex items-center justify-center text-[11px] font-bold text-amber-300">
+                  {user?.name ? user.name.charAt(0).toUpperCase() : 'W'}
                 </div>
               )}
             </button>

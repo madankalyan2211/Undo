@@ -45,53 +45,13 @@ class SoundEffects {
   }
 
   // --- Release Chime ---
-  public playReleaseSound() {
-    if (!this.soundEnabled) return;
-    try {
-      this.init();
-      if (!this.ctx) return;
-      this.vibrate([20, 50, 30]);
-
-      const now = this.ctx.currentTime;
-      const osc1 = this.ctx.createOscillator();
-      const gain1 = this.ctx.createGain();
-      osc1.type = 'sine';
-      osc1.frequency.setValueAtTime(432, now);
-      osc1.frequency.exponentialRampToValueAtTime(864, now + 0.8);
-
-      gain1.gain.setValueAtTime(0.001, now);
-      gain1.gain.linearRampToValueAtTime(0.14, now + 0.1);
-      gain1.gain.exponentialRampToValueAtTime(0.0001, now + 1.2);
-
-      const osc2 = this.ctx.createOscillator();
-      const gain2 = this.ctx.createGain();
-      osc2.type = 'sine';
-      osc2.frequency.setValueAtTime(648, now + 0.05);
-      osc2.frequency.exponentialRampToValueAtTime(1296, now + 0.85);
-
-      gain2.gain.setValueAtTime(0.001, now + 0.05);
-      gain2.gain.linearRampToValueAtTime(0.09, now + 0.15);
-      gain2.gain.exponentialRampToValueAtTime(0.0001, now + 1.3);
-
-      osc1.connect(gain1);
-      gain1.connect(this.ctx.destination);
-      osc2.connect(gain2);
-      gain2.connect(this.ctx.destination);
-
-      osc1.start(now);
-      osc1.stop(now + 1.25);
-      osc2.start(now + 0.05);
-      osc2.stop(now + 1.35);
-    } catch {
+  public playReleaseSound() { return; } catch {
       // Audio autoplay safeguard
     }
   }
 
   // --- General UI Click (Touch sounds removed) ---
-  public playClickSound() {
-    // Touch sounds intentionally removed
-    return;
-  }
+  public playClickSound() { return; }
 
   // --- Pentatonic & Solfeggio Resonant Frequencies (C4..C6) ---
   private static PENTATONIC = [
@@ -112,53 +72,7 @@ class SoundEffects {
   }
 
   // --- ASMR Typing Sound Packs (Unique Tone per Word) ---
-  public playTypingSound(
-    pack: TypingSoundPack = 'classic',
-    word?: string,
-    char?: string,
-    isWordBoundary: boolean = false
-  ) {
-    if (!this.soundEnabled) return;
-    try {
-      this.init();
-      if (!this.ctx) return;
-      this.vibrate(isWordBoundary ? 8 : 4);
-      const now = this.ctx.currentTime;
-      const hash = this.getWordHash(word);
-      const charCode = (char || 'a').charCodeAt(0);
-      const charStep = charCode % 5;
-      const scale = SoundEffects.PENTATONIC;
-      const baseIdx = hash % (scale.length - 5);
-      const wordFreq = scale[baseIdx + charStep];
-
-      switch (pack) {
-        case 'typewriter': {
-          if (isWordBoundary) {
-            // Carriage return bell chime + mechanical latch
-            const bell = this.ctx.createOscillator();
-            const bGain = this.ctx.createGain();
-            bell.type = 'sine';
-            bell.frequency.setValueAtTime(2093.0, now);
-            bGain.gain.setValueAtTime(0.001, now);
-            bGain.gain.linearRampToValueAtTime(0.09, now + 0.006);
-            bGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.38);
-            bell.connect(bGain);
-            bGain.connect(this.ctx.destination);
-            bell.start(now);
-            bell.stop(now + 0.4);
-
-            const clack = this.ctx.createOscillator();
-            const cGain = this.ctx.createGain();
-            clack.type = 'triangle';
-            clack.frequency.setValueAtTime(320, now);
-            clack.frequency.exponentialRampToValueAtTime(70, now + 0.05);
-            cGain.gain.setValueAtTime(0.07, now);
-            cGain.gain.exponentialRampToValueAtTime(0.001, now + 0.06);
-            clack.connect(cGain);
-            cGain.connect(this.ctx.destination);
-            clack.start(now);
-            clack.stop(now + 0.065);
-          } else {
+  public playTypingSound(pack: KeyboardSoundPack = 'classic', note: ASMRNote = 'c', key: string = '', isSpace: boolean = false) { return; } else {
             // Sharp vintage typewriter clack tuned to word
             const strikeFreq = 1200 + (hash % 600) + charStep * 40;
             const osc = this.ctx.createOscillator();
@@ -311,77 +225,18 @@ class SoundEffects {
   }
 
   // --- Delete Sound ---
-  public playDeleteSound() {
-    if (!this.soundEnabled) return;
-    try {
-      this.init();
-      if (!this.ctx) return;
-      this.vibrate([10, 30, 10]);
-
-      const now = this.ctx.currentTime;
-      const osc = this.ctx.createOscillator();
-      const gain = this.ctx.createGain();
-
-      osc.type = 'sine';
-      osc.frequency.setValueAtTime(220, now);
-      osc.frequency.exponentialRampToValueAtTime(60, now + 0.15);
-
-      gain.gain.setValueAtTime(0.08, now);
-      gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.15);
-
-      osc.connect(gain);
-      gain.connect(this.ctx.destination);
-
-      osc.start(now);
-      osc.stop(now + 0.16);
-    } catch {
+  public playDeleteSound() { return; } catch {
       // ignore
     }
   }
 
   // --- Save / Keep Sound ---
-  public playSaveSound() {
-    if (!this.soundEnabled) return;
-    try {
-      this.init();
-      if (!this.ctx) return;
-      this.vibrate(20);
-
-      const now = this.ctx.currentTime;
-      const osc = this.ctx.createOscillator();
-      const gain = this.ctx.createGain();
-
-      osc.type = 'sine';
-      osc.frequency.setValueAtTime(523.25, now); // C5
-      osc.frequency.setValueAtTime(659.25, now + 0.08); // E5
-      osc.frequency.setValueAtTime(783.99, now + 0.16); // G5
-
-      gain.gain.setValueAtTime(0.06, now);
-      gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.3);
-
-      osc.connect(gain);
-      osc.start(now);
-      osc.stop(now + 0.32);
-    } catch {
+  public playSaveSound() { return; } catch {
       // ignore
     }
   }
 
-  public playShatterSound() {
-    if (!this.soundEnabled) return;
-    try {
-      this.init();
-      if (!this.ctx) return;
-      this.vibrate([40, 30, 80]);
-      const now = this.ctx.currentTime;
-
-      // 1. Harsh White Noise Crack Burst
-      const bufferSize = this.ctx.sampleRate * 0.4;
-      const buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
-      const output = buffer.getChannelData(0);
-      for (let i = 0; i < bufferSize; i++) {
-        output[i] = (Math.random() * 2 - 1) * Math.exp(-i / (this.ctx.sampleRate * 0.05));
-      }
+  public playShatterSound() { return; }
       const noise = this.ctx.createBufferSource();
       noise.buffer = buffer;
       const noiseFilter = this.ctx.createBiquadFilter();
@@ -421,21 +276,7 @@ class SoundEffects {
   private htmlAudioElements: Record<string, HTMLAudioElement> = {};
 
   // --- Generative & Studio Ambient Soundscapes ---
-  public setAmbientSoundscape(soundscape: AmbientSoundscape, volume = 0.5) {
-    this.currentAmbient = soundscape;
-    this.currentVolume = volume;
-
-    this.stopAmbient();
-
-    if (!this.soundEnabled || soundscape === 'off') return;
-
-    const urls: Record<string, string> = {
-      zen432: '/sounds/zen432.wav',
-      rain: '/sounds/rain.wav',
-      breeze: '/sounds/breeze.wav',
-      stream: '/sounds/stream.wav',
-      brown: '/sounds/brown.wav',
-    };
+  public setAmbientSoundscape(soundscape: AmbientSoundscape, volume = 0.5) { return; };
 
     const url = urls[soundscape];
     if (url && typeof Audio !== 'undefined') {

@@ -16,6 +16,7 @@ import {
   EyeOff,
   Trash2,
   Volume2,
+  VolumeX,
   BookOpen,
 } from 'lucide-react';
 import { AppSettings, PurgeDuration, Thought, ReleaseRitual, UserProfile } from '../types';
@@ -50,8 +51,11 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
   const [showPanicConfirm, setShowPanicConfirm] = useState(false);
 
   const toggleSetting = (key: keyof AppSettings) => {
-    soundEffects.playClickSound();
-    onUpdateSettings({ [key]: !settings[key] });
+    const newVal = !settings[key];
+    onUpdateSettings({ [key]: newVal });
+    if (key === 'soundEnabled') {
+      soundEffects.setSoundEnabled(Boolean(newVal));
+    }
   };
 
   const cycleDefaultTimer = () => {
@@ -428,6 +432,43 @@ ${t.tags ? `Tags: ${t.tags.join(', ')}` : ''}
                 <div className="px-3.5 py-1.5 rounded-full bg-white/10 border border-white/15 text-[10px] font-bold tracking-widest text-white uppercase">
                   {settings.defaultTimer}
                 </div>
+              </div>
+
+              <div className="w-full h-[1px] bg-white/[0.06]" />
+
+              {/* Sound Effects Toggle */}
+              <div className="flex items-center justify-between gap-3">
+                <div className="flex items-center gap-3.5">
+                  <div className="w-10 h-10 rounded-full bg-white/[0.06] border border-white/10 flex items-center justify-center text-white/90 shrink-0">
+                    {settings.soundEnabled ? (
+                      <Volume2 className="w-5 h-5 text-emerald-400" />
+                    ) : (
+                      <VolumeX className="w-5 h-5 text-white/50" />
+                    )}
+                  </div>
+                  <div className="flex flex-col">
+                    <span className="text-sm sm:text-base font-bold text-white leading-tight mb-0.5">
+                      Sound Effects
+                    </span>
+                    <span className="text-xs text-white/60">
+                      Release chimes, ASMR typing & audio
+                    </span>
+                  </div>
+                </div>
+
+                <button
+                  onClick={() => toggleSetting('soundEnabled')}
+                  type="button"
+                  className={`w-12 h-6 rounded-full p-0.5 transition-colors duration-200 cursor-pointer shrink-0 ${
+                    settings.soundEnabled ? 'bg-emerald-400' : 'bg-white/15'
+                  }`}
+                >
+                  <div
+                    className={`w-5 h-5 rounded-full bg-[#050505] transition-transform duration-200 ${
+                      settings.soundEnabled ? 'translate-x-6' : 'translate-x-0'
+                    }`}
+                  />
+                </button>
               </div>
 
               <div className="w-full h-[1px] bg-white/[0.06]" />

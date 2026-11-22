@@ -7,6 +7,18 @@ class SoundEffects {
   private activeAmbientNodes: { stop?: () => void; disconnect?: () => void }[] = [];
   private currentAmbient: AmbientSoundscape = 'off';
   private currentVolume = 0.5;
+  private soundEnabled = true;
+
+  public setSoundEnabled(enabled: boolean) {
+    this.soundEnabled = enabled;
+    if (!enabled) {
+      this.stopAmbientSoundscape();
+    }
+  }
+
+  public isEnabled(): boolean {
+    return this.soundEnabled;
+  }
 
   private init() {
     if (!this.ctx && typeof window !== 'undefined') {
@@ -34,6 +46,7 @@ class SoundEffects {
 
   // --- Release Chime ---
   public playReleaseSound() {
+    if (!this.soundEnabled) return;
     try {
       this.init();
       if (!this.ctx) return;
@@ -74,32 +87,10 @@ class SoundEffects {
     }
   }
 
-  // --- General UI Click ---
+  // --- General UI Click (Touch sounds removed) ---
   public playClickSound() {
-    try {
-      this.init();
-      if (!this.ctx) return;
-      this.vibrate(8);
-
-      const now = this.ctx.currentTime;
-      const osc = this.ctx.createOscillator();
-      const gain = this.ctx.createGain();
-
-      osc.type = 'sine';
-      osc.frequency.setValueAtTime(800, now);
-      osc.frequency.exponentialRampToValueAtTime(200, now + 0.04);
-
-      gain.gain.setValueAtTime(0.04, now);
-      gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.04);
-
-      osc.connect(gain);
-      gain.connect(this.ctx.destination);
-
-      osc.start(now);
-      osc.stop(now + 0.05);
-    } catch {
-      // ignore
-    }
+    // Touch sounds intentionally removed
+    return;
   }
 
   // --- Pentatonic & Solfeggio Resonant Frequencies (C4..C6) ---
@@ -127,6 +118,7 @@ class SoundEffects {
     char?: string,
     isWordBoundary: boolean = false
   ) {
+    if (!this.soundEnabled) return;
     try {
       this.init();
       if (!this.ctx) return;
@@ -320,6 +312,7 @@ class SoundEffects {
 
   // --- Delete Sound ---
   public playDeleteSound() {
+    if (!this.soundEnabled) return;
     try {
       this.init();
       if (!this.ctx) return;
@@ -348,6 +341,7 @@ class SoundEffects {
 
   // --- Save / Keep Sound ---
   public playSaveSound() {
+    if (!this.soundEnabled) return;
     try {
       this.init();
       if (!this.ctx) return;
@@ -374,6 +368,7 @@ class SoundEffects {
   }
 
   public playShatterSound() {
+    if (!this.soundEnabled) return;
     try {
       this.init();
       if (!this.ctx) return;
@@ -432,7 +427,7 @@ class SoundEffects {
 
     this.stopAmbient();
 
-    if (soundscape === 'off') return;
+    if (!this.soundEnabled || soundscape === 'off') return;
 
     const urls: Record<string, string> = {
       zen432: '/sounds/zen432.wav',

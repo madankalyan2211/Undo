@@ -160,16 +160,16 @@ export default function MobileApp() {
   const current = titles[activeTab];
 
   return (
-    <div className={`theme-${settings.themePalette} font-style-${settings.fontStyle} relative min-h-screen w-full bg-[var(--color-bg)] text-[var(--color-text)] flex justify-center overflow-x-clip antialiased`}>
+      <div className={`theme-${settings.themePalette} font-style-${settings.fontStyle} relative min-h-[100dvh] w-full bg-[var(--color-bg)] text-[var(--color-text)] flex justify-center overflow-x-clip antialiased`}>
       <AmbientBackground theme={settings.themePalette} showTexture={false} />
       <ParticleCanvas trigger={particleTrigger} ritual={activeRitual} onComplete={() => setParticleTrigger(false)} />
       <Toast message={toast?.message || null} subMessage={toast?.subMessage} type={toast?.type} onClose={() => setToast(null)} />
       <SecurityLock isLocked={isLocked} onUnlock={() => setIsLocked(false)} />
 
-      <main className="relative z-10 w-full max-w-md min-h-screen px-4 pt-2 flex flex-col justify-start">
+      <main className="relative z-10 w-full max-w-md min-h-[100dvh] px-4 pt-2 flex flex-col justify-start">
         <Header title={current.title} subtitle={current.subtitle} />
         <div className="flex-1 w-full mt-1">
-          {activeTab === 'write' && <div className="w-full pb-28 pt-2"><WriteCanvas onRelease={handleRelease} onEmptyRelease={() => showToast('Nothing to release', 'Type your thoughts first.', 'warning')} defaultTimer={settings.defaultTimer} settings={settings} /></div>}
+          {activeTab === 'write' && <div className="w-full pb-[calc(6rem+env(safe-area-inset-bottom,0px))] pt-2"><WriteCanvas onRelease={handleRelease} onEmptyRelease={() => showToast('Nothing to release', 'Type your thoughts first.', 'warning')} defaultTimer={settings.defaultTimer} settings={settings} /></div>}
           {activeTab === 'todos' && <div className="w-full"><MobileTodosView onShowToast={(message) => showToast(message)} /></div>}
           {activeTab === 'timeline' && <div className="w-full"><TimelineView thoughts={thoughts} onDelete={deleteThought} onSaveForever={saveForever} onNavigateToWrite={() => setActiveTab('write')} onShowToast={showToast} /></div>}
           {activeTab === 'saved' && <div className="w-full"><SavedView thoughts={thoughts} onDeletePermanent={deleteThought} onUnsaveToTimeline={unsaveToTimeline} onShowToast={showToast} /></div>}

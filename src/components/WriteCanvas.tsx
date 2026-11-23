@@ -323,7 +323,7 @@ export const WriteCanvas: React.FC<WriteCanvasProps> = ({
           isFocused
             ? 'border-white/25 shadow-[0_30px_90px_rgba(0,0,0,0.6)]'
             : 'border-[rgba(255,255,255,0.1)] shadow-[0_20px_60px_rgba(0,0,0,0.5)]'
-        } p-6 sm:p-7 flex flex-col justify-between transition-all duration-300 select-none`}
+        } p-[clamp(1rem,4.5vw,1.75rem)] flex flex-col justify-between transition-all duration-300 select-none`}
       >
         {/* Top Bar Badges inside text box */}
         <div className="flex items-center justify-between gap-2 mb-4">
@@ -346,7 +346,7 @@ export const WriteCanvas: React.FC<WriteCanvasProps> = ({
         </div>
 
         {/* Main Multiline Input Field */}
-        <div className="relative flex-1 min-h-[140px] sm:min-h-[160px] my-1 flex flex-col">
+        <div className="relative flex-1 min-h-[clamp(100px,20dvh,220px)] my-1 flex flex-col">
           <textarea
             value={content}
             onChange={handleInputChange}

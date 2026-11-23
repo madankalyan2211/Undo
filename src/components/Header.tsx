@@ -36,7 +36,7 @@ export const Header: React.FC<HeaderProps> = ({
   return (
     <header className="sticky top-0 z-50 w-full select-none py-2.5 bg-transparent transition-all duration-300">
       <div className="flex items-center justify-between w-full">
-        <div className="flex flex-col items-start">
+        <div className="flex flex-col items-start pl-1.5">
           {/* Animated Heading Capsule Container */}
           <motion.div
             layout

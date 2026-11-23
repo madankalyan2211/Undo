@@ -96,7 +96,7 @@ export const SavedView: React.FC<SavedViewProps> = ({
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, scale: 0.9, y: -10 }}
                 transition={{ type: 'spring', stiffness: 350, damping: 25 }}
-                className="group relative rounded-[32px] bg-[rgba(255,255,255,0.04)] backdrop-blur-[30px] border border-[rgba(255,255,255,0.08)] p-5 sm:p-6 flex flex-col justify-between hover:border-white/20 transition-all duration-200"
+                className="group relative rounded-[32px] bg-[rgba(255,255,255,0.07)] backdrop-blur-[36px] border border-[rgba(255,255,255,0.14)] shadow-[inset_0_1px_0_rgba(255,255,255,0.1),0_16px_40px_rgba(0,0,0,0.22)] p-5 sm:p-6 flex flex-col justify-between hover:border-white/25 transition-all duration-200"
               >
                 {/* Content */}
                 <div className="flex items-start justify-between gap-3">

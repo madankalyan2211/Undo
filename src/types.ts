@@ -2,6 +2,8 @@ export type PurgeDuration = '10m' | '1h' | '3h' | '24h' | '7d' | '30d' | 'custom
 
 export type ReleaseRitual = 'dust' | 'fire' | 'ocean' | 'supernova' | 'crumple' | 'shatter';
 
+export type ReleaseAction = 'release' | 'breathe' | 'shatter';
+
 export type AmbientSoundscape = 'off' | 'rain' | 'zen432' | 'breeze' | 'brown' | 'stream';
 
 export type TypingSoundPack = 'classic' | 'typewriter' | 'mechanical' | 'waterdrop' | 'bubble' | 'kalimba';
@@ -73,6 +75,7 @@ export interface AppSettings {
   plusTier?: PlusTier;
   razorpayPaymentId?: string;
   plusActivatedAt?: number;
+  releaseAction: ReleaseAction;
   releaseRitual: ReleaseRitual;
   ambientSoundscape: AmbientSoundscape;
   ambientVolume: number;

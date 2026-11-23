@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
-import { motion } from 'motion/react';
-import { Shield, EyeOff, Lock } from 'lucide-react';
+import { EyeOff } from 'lucide-react';
 import { soundEffects } from '../utils/audio';
 
 interface DecoyCalculatorProps {
@@ -94,11 +93,8 @@ export const DecoyCalculator: React.FC<DecoyCalculatorProps> = ({
   };
 
   return (
-    <motion.div
-      initial={{ opacity: 0, scale: 0.98 }}
-      animate={{ opacity: 1, scale: 1 }}
-      exit={{ opacity: 0, scale: 0.98 }}
-      className="w-full max-w-sm mx-auto flex flex-col justify-between p-6 rounded-[36px] bg-[#121212] border border-white/10 shadow-[0_20px_60px_rgba(0,0,0,0.8)] select-none text-white mt-4"
+    <div
+      className="relative z-10 w-full max-w-sm mx-auto flex flex-col justify-between p-6 rounded-[36px] bg-[#121212] border border-white/10 shadow-[0_20px_60px_rgba(0,0,0,0.8)] select-none text-white mt-4"
     >
       {/* Stealth Top Header */}
       <div className="flex items-center justify-between pb-3 mb-4 border-b border-white/10">
@@ -200,6 +196,6 @@ export const DecoyCalculator: React.FC<DecoyCalculatorProps> = ({
           Enter PIN '{correctPin}' to unlock Undo
         </span>
       </div>
-    </motion.div>
+    </div>
   );
 };

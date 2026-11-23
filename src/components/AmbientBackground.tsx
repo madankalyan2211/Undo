@@ -4,9 +4,10 @@ import { ThemePalette } from '../types';
 
 interface AmbientBackgroundProps {
   theme?: ThemePalette;
+  showTexture?: boolean;
 }
 
-export const AmbientBackground: React.FC<AmbientBackgroundProps> = ({ theme = 'oled' }) => {
+export const AmbientBackground: React.FC<AmbientBackgroundProps> = ({ theme = 'oled', showTexture = true }) => {
   const getThemeColors = () => {
     switch (theme) {
       case 'obsidian':
@@ -88,10 +89,7 @@ export const AmbientBackground: React.FC<AmbientBackgroundProps> = ({ theme = 'o
         className="absolute -bottom-40 left-1/3 w-[460px] h-[460px] rounded-full blur-[150px] transition-all duration-700"
       />
 
-      {/* Grid texture overlay for Japanese Minimal aesthetic */}
-      <div 
-        className="absolute inset-0 opacity-[0.03] bg-[radial-gradient(#ffffff_1px,transparent_1px)] [background-size:24px_24px]" 
-      />
+      {showTexture && <div className="absolute inset-0 opacity-[0.03] bg-[radial-gradient(#ffffff_1px,transparent_1px)] [background-size:24px_24px]" />}
     </div>
   );
 };

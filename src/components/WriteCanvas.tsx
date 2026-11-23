@@ -56,6 +56,12 @@ const PRESET_EMOTIONS: { emoji: string; label: string }[] = [
 
 const QUICK_EMOJI_SUGGESTIONS = ['🌸', '🕊️', '🔮', '🪐', '🧸', '🕯️', '☕', '🌙', '☀️', '🌈', '🧗', '🧘'];
 
+const RELEASE_ACTION_PRESENTATION = {
+  release: { label: 'Release', icon: '✨', className: 'bg-white text-[#050505] shadow-[0_12px_24px_rgba(255,255,255,0.12)] hover:bg-[#EAEAEA] active:bg-[#EAEAEA]' },
+  breathe: { label: 'Breathe', icon: '🌬️', className: 'bg-amber-400/15 border border-amber-400/40 text-amber-300 hover:bg-amber-400/25' },
+  shatter: { label: 'Shatter', icon: '🫨', className: 'bg-white/10 border border-white/30 text-white hover:bg-white/20' },
+} as const;
+
 const ALL_PURGE_TIMERS: { value: PurgeDuration; label: string; short: string }[] = [
   { value: '10m', label: '10 Mins (Vent)', short: '10M' },
   { value: '1h', label: '1 Hour', short: '1H' },
@@ -65,6 +71,16 @@ const ALL_PURGE_TIMERS: { value: PurgeDuration; label: string; short: string }[]
   { value: '30d', label: '30 Days (Month)', short: '30D' },
   { value: 'custom', label: 'Custom', short: 'CTM' },
 ];
+
+const PURGE_TIMER_CAPTIONS: Record<PurgeDuration, string> = {
+  '10m': 'Vent',
+  '1h': '1 hour',
+  '3h': '3 hours',
+  '24h': '1 day',
+  '7d': '1 week',
+  '30d': '1 month',
+  custom: 'Set time',
+};
 
 export const WriteCanvas: React.FC<WriteCanvasProps> = ({
   onRelease,
@@ -117,6 +133,12 @@ export const WriteCanvas: React.FC<WriteCanvasProps> = ({
   const graceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const cardRef = useRef<HTMLDivElement | null>(null);
+
+  const startGracePeriod = (releasedContent: string, emoji?: string) => {
+    setGraceThought({ content: releasedContent, emoji });
+    if (graceTimerRef.current) clearTimeout(graceTimerRef.current);
+    graceTimerRef.current = setTimeout(() => setGraceThought(null), 5000);
+  };
 
   // Load custom emotions on mount
   useEffect(() => {
@@ -181,17 +203,26 @@ export const WriteCanvas: React.FC<WriteCanvasProps> = ({
       currentRitual
     );
 
-    // If grace period is enabled, show 5-second retrieval window
-    if (settings?.retrievalGracePeriodEnabled) {
-      setGraceThought({ content: trimmed, emoji: selectedEmoji });
-      if (graceTimerRef.current) clearTimeout(graceTimerRef.current);
-      graceTimerRef.current = setTimeout(() => {
-        setGraceThought(null);
-      }, 5000);
-    }
+    // If grace period is enabled, show a single 5-second retrieval notice.
+    if (settings?.retrievalGracePeriodEnabled) startGracePeriod(trimmed, selectedEmoji);
 
     setContent('');
     setSelectedEmoji(undefined);
+  };
+
+  const handlePrimaryReleaseAction = () => {
+    const action = settings?.releaseAction || 'release';
+    if (action === 'breathe' || action === 'shatter') {
+      if (!content.trim()) {
+        onEmptyRelease();
+        return;
+      }
+      soundEffects.playClickSound();
+      if (action === 'breathe') setIsBreathModalOpen(true);
+      else setIsShatterModalOpen(true);
+      return;
+    }
+    handleRelease();
   };
 
   const handleRetrieveGrace = () => {
@@ -288,7 +319,7 @@ export const WriteCanvas: React.FC<WriteCanvasProps> = ({
         ref={cardRef}
         animate={isShaking ? { x: [-8, 8, -6, 6, -3, 3, 0] } : { x: 0 }}
         transition={{ duration: 0.4 }}
-        className={`relative w-full rounded-[36px] bg-[rgba(255,255,255,0.04)] backdrop-blur-[40px] border ${
+        className={`relative w-full rounded-[36px] bg-[rgba(255,255,255,0.065)] backdrop-blur-[48px] border shadow-[inset_0_1px_0_rgba(255,255,255,0.1),0_20px_60px_rgba(0,0,0,0.42)] ${
           isFocused
             ? 'border-white/25 shadow-[0_30px_90px_rgba(0,0,0,0.6)]'
             : 'border-[rgba(255,255,255,0.1)] shadow-[0_20px_60px_rgba(0,0,0,0.5)]'
@@ -304,17 +335,6 @@ export const WriteCanvas: React.FC<WriteCanvasProps> = ({
               </span>
             </div>
 
-            {/* Undo Plus Ritual Badge Button */}
-            {onOpenPlusModal && (
-              <button
-                type="button"
-                onClick={onOpenPlusModal}
-                className="px-2.5 py-1.5 rounded-full bg-gradient-to-r from-amber-400/10 to-amber-200/10 border border-amber-400/30 text-[10px] font-bold text-amber-300 uppercase tracking-wider flex items-center gap-1 hover:bg-amber-400/20 transition-all cursor-pointer"
-              >
-                <Sparkles className="w-3 h-3" />
-                <span>{settings?.releaseRitual || 'Plus ✦'}</span>
-              </button>
-            )}
           </div>
 
           {/* Right Badge: Short duration e.g. 24H */}
@@ -468,29 +488,40 @@ export const WriteCanvas: React.FC<WriteCanvasProps> = ({
             )}
           </div>
 
-          {/* Timer Option Pills - Horizontal Scroll with Undo Plus 10m & 30d */}
-          <div className="flex items-center gap-2 overflow-x-auto w-full max-w-full py-1.5 scrollbar-none touch-pan-x overscroll-x-contain">
-            {ALL_PURGE_TIMERS.map(({ value, label }) => {
-              const isSelected = timerOption === value;
+          {/* Purge timeline: each duration is a stop along the fading path. */}
+          <div className="-mx-2 overflow-x-auto scrollbar-none touch-pan-x overscroll-x-contain" role="radiogroup" aria-label="Thought auto purge duration">
+            <div className="relative flex w-max items-start px-3 pb-1 pt-3">
+              <div aria-hidden="true" className="absolute left-[34px] right-[34px] top-[32px] h-px bg-gradient-to-r from-white/25 via-white/15 to-white/5" />
+              {ALL_PURGE_TIMERS.map(({ value, label, short }) => {
+                const isSelected = timerOption === value;
 
-              return (
-                <button
-                  key={value}
-                  onClick={() => {
-                    setTimerOption(value);
-                    soundEffects.playClickSound();
-                  }}
-                  type="button"
-                  className={`py-2 px-4 rounded-full text-xs font-semibold text-center transition-all duration-200 cursor-pointer shrink-0 whitespace-nowrap ${
-                    isSelected
-                      ? 'bg-white text-[#050505] font-bold shadow-lg scale-105'
-                      : 'bg-[rgba(255,255,255,0.04)] border border-[rgba(255,255,255,0.1)] text-white/80 hover:bg-white/10'
-                  }`}
-                >
-                  {label}
-                </button>
-              );
-            })}
+                return (
+                  <button
+                    key={value}
+                    onClick={() => {
+                      setTimerOption(value);
+                      soundEffects.playClickSound();
+                    }}
+                    type="button"
+                    role="radio"
+                    aria-checked={isSelected}
+                    aria-label={`${label} auto purge`}
+                    title={label}
+                    className="group relative z-10 flex w-[72px] shrink-0 flex-col items-center text-center cursor-pointer"
+                  >
+                    <span className={`flex h-[40px] w-[40px] items-center justify-center rounded-full border font-mono text-[9px] font-bold tracking-tight transition-[background,color,border,box-shadow,transform] duration-200 ${isSelected
+                      ? 'border-white bg-white text-[#080910] shadow-[0_0_0_5px_rgba(255,255,255,0.08),0_0_24px_rgba(255,255,255,0.28)]'
+                      : 'border-white/15 bg-[#171722]/90 text-white/55 group-hover:border-white/35 group-hover:text-white/85'
+                    }`}>
+                      {short}
+                    </span>
+                    <span className={`mt-2 text-[10px] font-semibold leading-tight transition-colors ${isSelected ? 'text-white' : 'text-white/45 group-hover:text-white/75'}`}>
+                      {PURGE_TIMER_CAPTIONS[value]}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
           </div>
 
           {/* Custom Hours Slider if custom is selected */}
@@ -517,51 +548,17 @@ export const WriteCanvas: React.FC<WriteCanvasProps> = ({
           )}
         </div>
 
-        {/* Release Action Buttons (Standard + Breathe & Burn + Shake Shatter) */}
-        <div className="flex items-center gap-2">
+        {/* Primary release action follows the user's Settings preference. */}
+        <div className="flex">
           <motion.button
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.96 }}
-            onClick={() => {
-              if (!content.trim()) {
-                onEmptyRelease();
-                return;
-              }
-              soundEffects.playClickSound();
-              setIsBreathModalOpen(true);
-            }}
+            whileHover={{ scale: 1.01 }}
+            whileTap={{ scale: 0.98 }}
+            onClick={handlePrimaryReleaseAction}
             type="button"
-            className="h-[60px] sm:h-[64px] px-4 sm:px-5 rounded-full bg-amber-400/15 hover:bg-amber-400/25 border border-amber-400/40 text-amber-400 font-extrabold text-xs sm:text-sm tracking-wider uppercase flex items-center justify-center gap-1.5 transition-all cursor-pointer shrink-0"
+            className={`w-full h-[60px] sm:h-[64px] rounded-full font-extrabold text-sm tracking-wider uppercase flex items-center justify-center gap-2 transition-colors cursor-pointer ${RELEASE_ACTION_PRESENTATION[settings?.releaseAction || 'release'].className}`}
           >
-            <span className="text-base">🌬️</span>
-            <span>Breathe</span>
-          </motion.button>
-
-          <motion.button
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.96 }}
-            onClick={() => {
-              if (!content.trim()) {
-                onEmptyRelease();
-                return;
-              }
-              setIsShatterModalOpen(true);
-            }}
-            type="button"
-            className="h-[60px] sm:h-[64px] px-4 sm:px-5 rounded-full bg-white/10 hover:bg-white/20 border border-white/30 text-white font-extrabold text-xs sm:text-sm tracking-wider uppercase flex items-center justify-center gap-1.5 transition-all cursor-pointer shrink-0"
-          >
-            <span className="text-base">🫨</span>
-            <span>Shatter</span>
-          </motion.button>
-
-          <motion.button
-            whileHover={{ scale: 0.99 }}
-            whileTap={{ scale: 0.96 }}
-            onClick={handleRelease}
-            type="button"
-            className="flex-1 h-[60px] sm:h-[64px] rounded-full bg-white text-[#050505] font-bold text-xs sm:text-sm tracking-[0.05em] uppercase flex items-center justify-center shadow-[0_12px_24px_rgba(255,255,255,0.12)] hover:bg-[#EAEAEA] active:bg-[#EAEAEA] transition-colors cursor-pointer"
-          >
-            <span>Release</span>
+            <span className="text-base" aria-hidden="true">{RELEASE_ACTION_PRESENTATION[settings?.releaseAction || 'release'].icon}</span>
+            <span>{RELEASE_ACTION_PRESENTATION[settings?.releaseAction || 'release'].label}</span>
           </motion.button>
         </div>
       </motion.div>
@@ -576,6 +573,7 @@ export const WriteCanvas: React.FC<WriteCanvasProps> = ({
         onClose={() => setIsShatterModalOpen(false)}
         onCompleteRelease={(txt, dur, ch, me) => {
           onRelease(txt, dur, ch, me, 'shatter');
+          if (settings?.retrievalGracePeriodEnabled) startGracePeriod(txt, me);
           setContent('');
           setSelectedEmoji(undefined);
         }}
@@ -592,6 +590,7 @@ export const WriteCanvas: React.FC<WriteCanvasProps> = ({
         onClose={() => setIsBreathModalOpen(false)}
         onCompleteRelease={(txt, dur, ch, me, rit) => {
           onRelease(txt, dur, ch, me, rit);
+          if (settings?.retrievalGracePeriodEnabled) startGracePeriod(txt, me);
           setContent('');
           setSelectedEmoji(undefined);
         }}

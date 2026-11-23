@@ -66,26 +66,27 @@ const ThoughtSwipeCard: React.FC<ThoughtSwipeCardProps> = ({
 
   return (
     <div className="relative w-full overflow-hidden rounded-[32px] touch-pan-y select-none">
-      {/* Swipe Indicators Behind Card */}
-      <div className="absolute inset-0 flex items-center justify-between px-6 rounded-[32px] bg-[rgba(255,255,255,0.02)] border border-[rgba(255,255,255,0.06)] pointer-events-none">
-        {/* Right Swipe Indicator (Keep) */}
+      {/* Directional swipe feedback: luminous icons appear only while swiping. */}
+      <div className={`absolute inset-0 flex items-center justify-between px-6 rounded-[32px] border pointer-events-none transition-colors duration-200 ${
+        dragX > 20
+          ? 'bg-gradient-to-r from-emerald-400/20 via-emerald-400/[0.08] to-white/[0.02] border-emerald-300/20'
+          : dragX < -20
+            ? 'bg-gradient-to-l from-rose-400/20 via-rose-400/[0.08] to-white/[0.02] border-rose-300/20'
+            : 'bg-[rgba(255,255,255,0.02)] border-[rgba(255,255,255,0.06)]'
+      }`}>
         <div
-          className={`flex items-center gap-2 font-bold text-xs uppercase tracking-wider transition-opacity duration-150 ${
-            dragX > 20 ? 'opacity-100 text-emerald-400' : 'opacity-30 text-white/40'
-          }`}
+          role="img"
+          aria-label="Swipe right to keep this thought"
+          className={`flex h-12 w-12 items-center justify-center rounded-full border border-emerald-300/30 bg-emerald-300/15 text-emerald-200 shadow-[0_0_28px_rgba(52,211,153,0.24)] transition-all duration-150 ${dragX > 20 ? 'opacity-100 scale-100' : 'opacity-0 scale-75'}`}
         >
-          <Star className="w-4 h-4 fill-emerald-400" />
-          <span>Keep</span>
+          <Star className="h-5 w-5 fill-current" />
         </div>
-
-        {/* Left Swipe Indicator (Delete) */}
         <div
-          className={`flex items-center gap-2 font-bold text-xs uppercase tracking-wider transition-opacity duration-150 ${
-            dragX < -20 ? 'opacity-100 text-rose-400' : 'opacity-30 text-white/40'
-          }`}
+          role="img"
+          aria-label="Swipe left to delete this thought"
+          className={`flex h-12 w-12 items-center justify-center rounded-full border border-rose-300/30 bg-rose-300/15 text-rose-200 shadow-[0_0_28px_rgba(251,113,133,0.24)] transition-all duration-150 ${dragX < -20 ? 'opacity-100 scale-100' : 'opacity-0 scale-75'}`}
         >
-          <span>Delete</span>
-          <Trash2 className="w-4 h-4" />
+          <Trash2 className="h-5 w-5" />
         </div>
       </div>
 
@@ -97,7 +98,7 @@ const ThoughtSwipeCard: React.FC<ThoughtSwipeCardProps> = ({
         onDragEnd={handleDragEnd}
         animate={exitX !== null ? { x: exitX, opacity: 0 } : { x: 0, opacity: 1 }}
         transition={{ type: 'spring', stiffness: 400, damping: 30 }}
-        className="relative rounded-[32px] bg-[#121212] border border-[rgba(255,255,255,0.1)] p-5 sm:p-6 flex items-start gap-4 cursor-grab active:cursor-grabbing shadow-lg"
+        className="relative rounded-[32px] bg-[rgba(255,255,255,0.075)] backdrop-blur-[32px] border border-[rgba(255,255,255,0.15)] p-5 sm:p-6 flex items-start gap-4 cursor-grab active:cursor-grabbing shadow-[inset_0_1px_0_rgba(255,255,255,0.1),0_16px_40px_rgba(0,0,0,0.24)]"
       >
         {/* Circle Dot / Mood Emoji Icon on Left */}
         <div className="w-11 h-11 rounded-full bg-white/[0.05] border border-white/10 flex items-center justify-center shrink-0 mt-0.5 pointer-events-none select-none">

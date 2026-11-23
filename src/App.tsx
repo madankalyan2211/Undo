@@ -73,6 +73,8 @@ export default function App() {
       setIsLocked(true);
     }
 
+    // Initialize sound settings
+    soundEffects.setSoundEnabled(loadedSettings.soundEnabled !== false);
 
     // Initialize ambient audio if enabled
     if (loadedSettings.ambientSoundscape && loadedSettings.ambientSoundscape !== 'off') {

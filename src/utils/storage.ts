@@ -15,6 +15,7 @@ export const DEFAULT_SETTINGS: AppSettings = {
 
   // Undo Plus Premium Settings
   isPlusMember: false,
+  releaseAction: 'release',
   releaseRitual: 'dust',
   ambientSoundscape: 'off',
   ambientVolume: 0.5,

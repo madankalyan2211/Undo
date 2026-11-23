@@ -5,7 +5,7 @@
     "scheme": "undo",
     "version": "1.0.10",
     "orientation": "portrait",
-    "icon": "./assets/icon.png",
+    "icon": "./assets/undo-app-icon.png",
     "userInterfaceStyle": "dark",
     "owner": "madan30",
     "platforms": [
@@ -23,15 +23,11 @@
       ],
       "adaptiveIcon": {
         "backgroundColor": "#050505",
-        "foregroundImage": "./assets/android-icon-foreground.png",
-        "backgroundImage": "./assets/android-icon-background.webp",
-        "monochromeImage": "./assets/android-icon-monochrome.png"
+        "foregroundImage": "./assets/undo-app-icon.png"
       },
       "predictiveBackGestureEnabled": false
     },
-    "plugins": [
-      "expo-web-browser"
-    ],
+    "plugins": [],
     "extra": {
       "eas": {
         "projectId": "07a011ea-e1f7-4c1f-b5d0-c8a49fd33e46"
